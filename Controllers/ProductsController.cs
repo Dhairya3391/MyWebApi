@@ -43,7 +43,7 @@ public class ProductsController : ControllerBase
     {
         if (id != product.Id)
         {
-            return BadRequest();
+            return BadRequest(User);
         }
 
         product.UpdatedAt = DateTime.UtcNow;
@@ -99,4 +99,3 @@ public class ProductsController : ControllerBase
         return _context.Products.Any(e => e.Id == id);
     }
 }
-

@@ -10,91 +10,119 @@ namespace MyWebAPI.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
-      
+
     public UsersController(ApplicationDbContext context)
     {
         _context = context;
     }
-    
+
     // GET: api/Users
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetUsers()
+    public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
-        return await _context.Users;
+        return await _context.Users.ToListAsync();
     }
 
     // GET: api/Users/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Product>> GetProduct(int id)
+    public async Task<ActionResult<User>> GetUser(int id)
     {
-        var product = await _context.Users.FindAsync(id);
+        var user = await _context.Users.FindAsync(id);
 
-        if (product == null)
+        if (user == null)
         {
             return NotFound();
         }
 
-        return product;
+        return user;
     }
 
     // PUT: api/Users/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutProduct(int id, Product product)
+    // public async Task<IActionResult> PutUser(int id, User udser)
+    // {
+    //     var dbuser= await _context.Users.Fin(id);
+    //     if (dbuser == null)
+    //     {
+    //         return NotFound();
+    //     }
+    //
+    //     Console.WriteLine(dbuser);
+    //     Console.WriteLine(user);
+    //
+    //     dbuser.Name= user.Name;
+    //
+    //
+    //     // user.UpdatedAt = DateTime.UtcNow;
+    //     // _context.Entry(user).State = EntityState.Modified;
+    //
+    //     try
+    //     {
+    //         await _context.SaveChangesAsync();
+    //     }
+    //     catch (DbUpdateConcurrencyException)
+    //     {
+    //         if (!UserExists(id))
+    //         {
+    //             return NotFound();
+    //         }
+    //         else
+    //         {
+    //             throw;
+    //         }
+    //     }
+    //
+    //     return NoContent();
+    // }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutUser(int id, User user)
     {
-        if (id != product.Id)
-        {
-            return BadRequest();
-        }
 
-        product.UpdatedAt = DateTime.UtcNow;
-        _context.Entry(product).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!ProductExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        return NoContent();
-    }
-
-    // POST: api/Users
-    [HttpPost]
-    public async Task<ActionResult<Product>> PostProduct(Product product)
-    {
-        _context.Users.Add(product);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction("GetProduct", new { id = product.Id }, product);
-    }
-
-    // DELETE: api/Users/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteProduct(int id)
-    {
-        var product = await _context.Users.FindAsync(id);
-        if (product == null)
+        var dbUser = await _context.Users.SingleAsync(u => u.Id == id);
+        if (dbUser == null)
         {
             return NotFound();
         }
 
-        _context.Users.Remove(product);
+        // Update fields manually
+        dbUser.Name = user.Name;
+        dbUser.Email = user.Email;
+        dbUser.PhoneNumber = user.PhoneNumber;
+        dbUser.Password = user.Password;
+        dbUser.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return Ok();
+    }
+
+    // POST: api/Users
+    [HttpPost]
+    public async Task<ActionResult<User>> PostUser(User user)
+    {
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction("GetUser", new { id = user.Id },user);
+    }
+
+    // DELETE: api/Users/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        _context.Users.Remove(user);
         await _context.SaveChangesAsync();
 
         return NoContent();
     }
 
-    private bool ProductExists(int id)
+    private bool UserExists(int id)
     {
         return _context.Users.Any(e => e.Id == id);
     }
